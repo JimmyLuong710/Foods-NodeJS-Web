@@ -9,17 +9,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import path from 'path'
-var multer = require("multer");
-
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "src/public");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-var upload = multer({ storage: storage }).single("file");
+var multer = require("multer")
 
 
 require('dotenv').config();
@@ -35,22 +25,6 @@ app.use(cors({
   origin
 }))
 
-app.post('/upload',function(req, res) {
-     
-  upload(req, res, function (err) {
-         if (err instanceof multer.MulterError) {
-          console.log(err)
-             return res.status(500).json(err)
-         } else if (err) {
-          console.log(err)  
-             return res.status(500).json(err)
-         }
-
-    return res.status(200).send(req.file)
-    // res.sendFile(path.join(__dirname,'public/file-vinh'));
-  })
-
-});
 // CONNECT TO DB
 connectDB();
 

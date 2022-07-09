@@ -47,7 +47,8 @@ const authController = {
                             userName: req.body.userName,
                             email: req.body.email,
                             phone: req.body.phone,
-                            password: hash
+                            password: hash,
+                            role: 'user'
                           })
                           res.status(200).json('đăng ký thành công')
                      }
@@ -79,15 +80,17 @@ const authController = {
                     // đẩy refresh token vào cookies và DB 
                    let accessToken = jwt.sign({
                         id: user.id,
-                        username: user.userName
+                        username: user.userName,
+                        role: user.role
                     }, process.env.ACCESS_TOKEN_KEY, {
-                        expiresIn: 60
+                        expiresIn: 10
                     })
                     let refreshToken = jwt.sign({
                         id: user.id,
-                        username: user.userName
+                        username: user.userName,
+                        role: user.role
                     }, process.env.REFRESH_TOKEN_KEY, {
-                        expiresIn: 120
+                        expiresIn: '24h'
                     })
                    let insert = await db.LoginToken.create({
                         userId: user.id,
@@ -99,11 +102,12 @@ const authController = {
                     })
                     res.status(200).json({
                         ...user,
-                        refreshToken
+                        accessToken: accessToken
                     })
                 }
             }
         } catch(err) {
+            console.log(err)
             res.status(500).json('loi server');
         }
     },
@@ -123,22 +127,36 @@ const authController = {
     requestRefreshToken: async (req, res) => {
         let refToken = req.cookies.refreshToken
         if(!refToken) {
-            return res.status(403).json('you have not loged in yet')
+            return res.status(403).json('ban chua dang nhap')
         }
+        await jwt.verify(refToken , process.env.REFRESH_TOKEN_KEY , async (err, decoded) => {
+            if(err) {
+                console.log(err)
+                await db.LoginToken.destroy({
+                    where: {
+                        token: refToken
+                    }
+                })
+                res.clearCookie('refreshToken')
+              return  res.status(403).json('Token da het han refreshToken')
+            }
+        })
         let refTokenDB = await db.LoginToken.findOne({
             where: {
                 token: refToken
             }
         })
-        if(!refTokenDB) return res.status('403').json('not valid')
+        if(!refTokenDB) return res.status('403').json('token khong hop le')
+
         await jwt.verify(refToken, process.env.REFRESH_TOKEN_KEY, (err, user) => {
             if(err) return res.status(403).json(err)
-            let accessToken = jwt.sign({id: user.id, username: user.userNaem}, process.env.ACCESS_TOKEN_KEY,
+            let accessToken = jwt.sign({id: user.id, username: user.userNaem, role: user.role}, process.env.ACCESS_TOKEN_KEY,
                 {
-                    expiresIn: 60
+                    expiresIn: '10s'
                 })
+               return res.status(200).json(accessToken)
         })
     }
 }
 
-module.exports = authController;
+module.exports = authController

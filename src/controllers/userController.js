@@ -1,6 +1,8 @@
 import db from "../models/index";
 var bcrypt = require("bcryptjs");
 var salt = bcrypt.genSaltSync(10);
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 var multer = require("multer");
 
@@ -103,7 +105,7 @@ const userController = {
 
       // CHECK USERNAME EXISTS
       if (username) {
-        res.status(200).json("username đã tồn tại");
+        res.status(400).json("username đã tồn tại");
       } else {
         let email = await db.User.findOne({
           raw: true,
@@ -125,7 +127,7 @@ const userController = {
 
           // CHECK PHONE EXISTS
           if (phone) {
-            res.status(200).json("số điện thoại đã tồn tại");
+            res.status(400).json("số điện thoại đã tồn tại");
           } else {
             let hash = bcrypt.hashSync(req.body.password, salt);
             // INSERT DATA TO DB
@@ -134,6 +136,7 @@ const userController = {
               email: req.body.email,
               phone: req.body.phone,
               password: hash,
+              role: "user"
             });
             res.status(200).json(data);
           }
@@ -145,7 +148,7 @@ const userController = {
     }
   },
 
-  addProduct: async (req, res) => {
+  addProductImg: (req, res) => {
     upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         console.log(err);
@@ -155,8 +158,12 @@ const userController = {
         return res.status(500).json(err);
       }
     });
+    res.status(200).json('them hinh anh thanh cong')
+  },
+
+  addProduct: async (req, res) => {
     try {
-      await db.Product.create({
+     let data =  await db.Product.create({
         productName: req.body.productName,
         price: req.body.price,
         type: req.body.type,
@@ -164,7 +171,7 @@ const userController = {
         description: req.body.description,
         image: req.body.image,
       });
-      res.status(200).json("them san pham thanh cong");
+      res.status(200).json(data);
     } catch (err) {
       res.status(500).json("loi server");
     }
@@ -181,7 +188,7 @@ const userController = {
 
   updateProduct: async (req, res) => {
     try {
-      let data = await db.Product.update(
+      await db.Product.update(
         {
           productName: req.body.productName,
           price: req.body.price,
@@ -196,7 +203,11 @@ const userController = {
           },
         }
       );
-
+      let data = await db.Product.findOne({
+        where: {
+          id: req.params.id
+        }
+      })
       res.status(200).json(data);
     } catch (err) {
       res.status(500).json("loi server");
@@ -211,6 +222,100 @@ const userController = {
       });
       res.status(200).json('xoa thanh cong')
     } catch(err) {
+      res.status(500).json('loi server')
+    }
+  },
+  getOneProduct: async (req, res) => {
+    try {
+      let data = await db.Product.findOne({
+        where: {
+          id: req.params.id
+        }
+      })
+
+      res.status(200).json(data)
+    } catch(err) {
+      res.status(500).json('loi server')
+    }
+  },
+  getProductsMatchKeyword: async (req, res) => {
+    try {
+      let data = await db.Product.findAll({
+        where: {
+          productName: { [Op.like] : `%${req.params.key}%`}
+        }
+      })
+      res.status(200).json(data)
+    } catch(err) {
+      res.status(500).json('loi server')
+    }
+  },
+
+  addToCart: async (req, res) => {
+    try {
+      let product = await db.Cart.findOne({
+        where: {
+          productId: req.body.productId
+        }
+      })
+      if(product) return res.status(400).json('Ban da them vao gio truoc do roi')
+       let data = await db.Cart.create({
+          userId: req.body.userId,
+          productId: req.body.productId,
+          quantityAdded: req.body.quantityAdded
+       })
+       res.status(200).json(data)
+    } catch(err) {
+      console.log(err)
+      res.status(500).json('loi server')
+    }
+  }, 
+  getProductInCart: async (req, res) => {
+    try {
+      let data = await db.Cart.findAll({
+        where: {userId: req.params.userId},
+        include: [
+          {
+            model: db.Product,
+            required: true
+          }
+        ]
+      })
+      res.status(200).json(data)
+    } catch(err) {
+      console.log(err)
+      res.status(500).json('loi server')
+    }
+  },
+  updateProductInCart: async (req, res) => {
+    try {
+      await db.Cart.update({
+        quantityAdded: req.body.quantityAdded
+      },
+      {
+        where: {
+          userId: req.body.userId,
+          productId: req.body.productId
+        },
+      }
+      )
+      res.status.json('update thanh cong')
+    } catch(err) {
+      console.log(err)
+      req.status(500).json('loi server')
+    }
+  },
+  deleteProductInCart: async (req, res) => {
+    try {
+      await db.Cart.destroy({
+        where: {
+          userId: req.query.userId,
+          productId: req.query.productId
+        }
+      })
+      res.status(200).json('xoa thanh cong')
+    } catch(err) {
+      console.log(err)
       res.status(500).json('loi server')
     }
   }

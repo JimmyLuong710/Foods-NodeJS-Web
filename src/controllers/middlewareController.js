@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import user from '../models/user'
 
 const middlewareController = {
 
@@ -8,33 +9,22 @@ const middlewareController = {
             if(token) {
             jwt.verify(token, process.env.ACCESS_TOKEN_KEY, (err, user) => {
                 if(err) {
-                    res.status(400).json('Token da het han')
+                    console.log(err)
+                  return  res.status(403).json('Token da het han verifyToken')
                 } else {
                 req.user = user // dùng cho hàm verifyTokenDelete để biết được role của user
                 next()
                 }
             })
         } else {
-            res.status(401).json('ban chua dang nhap')
+          return  res.status(401).json('ban chua dang nhap')
         }
     },
 
-    // VERIFY DELETE USER
-    verifyTokenUserOrAdminToken: (req, res, next) => {
-        // bản chất next là 1 hàm => khi truyền vào tham số trong verifyToken thì có thể biến tấu nó đi
-        // để đỡ xác thực lại => đã đăng nhập mới được xóa người dùng
-        middlewareController.verifyToken(req, res, () => {  
-            if(req.user.id === req.params.id) {
-                next()
-            } else {
-                res.status(403).json('ban khong co quyen thao tac tai khaon nay')
-            }
-        })
-    },
-
+    // VERIFY ADMIN
     verifyAdminToken: (req, res, next) => {
         middlewareController.verifyToken(req, res, () => {
-            if(user.role === 'admin') {
+            if(req.user.role === 'admin') {
                 next()
             } else {
                 res.status(403).json('ban khong co quyen truy cap')
