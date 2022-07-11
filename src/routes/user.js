@@ -21,6 +21,10 @@ router.post('/add-to-cart',middlewareController.verifyToken, userController.addT
 router.get('/get-product-in-cart/:userId',middlewareController.verifyToken, userController.getProductInCart)
 router.put('/update-product-in-cart', middlewareController.verifyToken, userController.updateProductInCart)
 router.delete('/delete-product-in-cart', middlewareController.verifyToken, userController.deleteProductInCart)
-
+router.delete('/delete-all-in-cart', middlewareController.verifyToken, userController.deleteAllInCart)
+router.post('/payment', middlewareController.verifyToken, userController.payProducts)
+router.get('/get-products-in-history', middlewareController.verifyToken, userController.getProductsInHistory)
+router.get('/get-products-in-handle-ordered', middlewareController.verifyAdminToken, userController.getProductsInHandleOrdered)
+router.put('/handle-ordered',middlewareController.verifyAdminToken, userController.handleOrdered)
 
 module.exports = router;

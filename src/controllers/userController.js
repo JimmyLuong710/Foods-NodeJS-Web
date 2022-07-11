@@ -1,8 +1,9 @@
 import db from "../models/index";
 var bcrypt = require("bcryptjs");
 var salt = bcrypt.genSaltSync(10);
-const Sequelize = require('sequelize');
+const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
+const moment = require("moment-timezone");
 
 var multer = require("multer");
 
@@ -136,7 +137,7 @@ const userController = {
               email: req.body.email,
               phone: req.body.phone,
               password: hash,
-              role: "user"
+              role: "user",
             });
             res.status(200).json(data);
           }
@@ -158,12 +159,12 @@ const userController = {
         return res.status(500).json(err);
       }
     });
-    res.status(200).json('them hinh anh thanh cong')
+    res.status(200).json("them hinh anh thanh cong");
   },
 
   addProduct: async (req, res) => {
     try {
-     let data =  await db.Product.create({
+      let data = await db.Product.create({
         productName: req.body.productName,
         price: req.body.price,
         type: req.body.type,
@@ -205,9 +206,9 @@ const userController = {
       );
       let data = await db.Product.findOne({
         where: {
-          id: req.params.id
-        }
-      })
+          id: req.params.id,
+        },
+      });
       res.status(200).json(data);
     } catch (err) {
       res.status(500).json("loi server");
@@ -220,34 +221,34 @@ const userController = {
           id: req.params.id,
         },
       });
-      res.status(200).json('xoa thanh cong')
-    } catch(err) {
-      res.status(500).json('loi server')
+      res.status(200).json("xoa thanh cong");
+    } catch (err) {
+      res.status(500).json("loi server");
     }
   },
   getOneProduct: async (req, res) => {
     try {
       let data = await db.Product.findOne({
         where: {
-          id: req.params.id
-        }
-      })
+          id: req.params.id,
+        },
+      });
 
-      res.status(200).json(data)
-    } catch(err) {
-      res.status(500).json('loi server')
+      res.status(200).json(data);
+    } catch (err) {
+      res.status(500).json("loi server");
     }
   },
   getProductsMatchKeyword: async (req, res) => {
     try {
       let data = await db.Product.findAll({
         where: {
-          productName: { [Op.like] : `%${req.params.key}%`}
-        }
-      })
-      res.status(200).json(data)
-    } catch(err) {
-      res.status(500).json('loi server')
+          productName: { [Op.like]: `%${req.params.key}%` },
+        },
+      });
+      res.status(200).json(data);
+    } catch (err) {
+      res.status(500).json("loi server");
     }
   },
 
@@ -255,54 +256,57 @@ const userController = {
     try {
       let product = await db.Cart.findOne({
         where: {
-          productId: req.body.productId
-        }
-      })
-      if(product) return res.status(400).json('Ban da them vao gio truoc do roi')
-       let data = await db.Cart.create({
-          userId: req.body.userId,
           productId: req.body.productId,
-          quantityAdded: req.body.quantityAdded
-       })
-       res.status(200).json(data)
-    } catch(err) {
-      console.log(err)
-      res.status(500).json('loi server')
+          userId: req.body.userId,
+        },
+      });
+      if (product)
+        return res.status(400).json("Ban da them vao gio truoc do roi");
+      let data = await db.Cart.create({
+        userId: req.body.userId,
+        productId: req.body.productId,
+        quantityAdded: req.body.quantityAdded,
+      });
+      res.status(200).json(data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
     }
-  }, 
+  },
   getProductInCart: async (req, res) => {
     try {
       let data = await db.Cart.findAll({
-        where: {userId: req.params.userId},
+        where: { userId: req.params.userId },
         include: [
           {
             model: db.Product,
-            required: true
-          }
-        ]
-      })
-      res.status(200).json(data)
-    } catch(err) {
-      console.log(err)
-      res.status(500).json('loi server')
+            required: true,
+          },
+        ],
+      });
+      res.status(200).json(data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
     }
   },
   updateProductInCart: async (req, res) => {
     try {
-      await db.Cart.update({
-        quantityAdded: req.body.quantityAdded
-      },
-      {
-        where: {
-          userId: req.body.userId,
-          productId: req.body.productId
+      await db.Cart.update(
+        {
+          quantityAdded: req.body.quantityAdded,
         },
-      }
-      )
-      res.status.json('update thanh cong')
-    } catch(err) {
-      console.log(err)
-      req.status(500).json('loi server')
+        {
+          where: {
+            userId: req.body.userId,
+            productId: req.body.productId,
+          },
+        }
+      );
+      res.status(200).json("update thanh cong");
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
     }
   },
   deleteProductInCart: async (req, res) => {
@@ -310,13 +314,148 @@ const userController = {
       await db.Cart.destroy({
         where: {
           userId: req.query.userId,
-          productId: req.query.productId
+          productId: req.query.productId,
+        },
+      });
+      res.status(200).json("xoa thanh cong");
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
+    }
+  },
+  deleteAllInCart: async (req, res) => {
+    try {
+      await db.Cart.destroy({
+        where: {
+          userId: req.user.id,
+        },
+      });
+      res.status(200).json("xoa thanh cong");
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
+    }
+  },
+
+  payProducts: async (req, res) => {
+    try {
+      let order = await db.Order.create({
+        userId: req.body.userId,
+        OrderDate: moment().tz("Asia/Ho_Chi_Minh").format(),
+        shippedDate: moment().tz("Asia/Ho_Chi_Minh").format(),
+        status: "pending",
+      });
+      let customerInfo = await db.CustomerInfo.create({
+        name: req.body.name,
+        phone: req.body.phone,
+        address: req.body.address,
+      });
+
+      for (let i = 0; i < req.body.quantityProducts; i++) {
+        let data = await db.OrderDetails.create({
+          orderId: order.dataValues.id,
+          productId: req.body.productId[i],
+          quantityOrdered: req.body.quantityOrdered[i],
+          priceEach: req.body.priceEach[i],
+          customerInfoId: customerInfo.dataValues.id,
+        });
+        console.log(i);
+        console.log(data);
+      }
+      res.status(200).json("thanh toan thanh cong");
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
+    }
+  },
+
+  getProductsInHandleOrdered: async (req, res) => {
+    try {
+      let data = await db.OrderDetails.findAll({
+        raw: true,
+        attributes: ["id", "quantityOrdered", "priceEach"],
+        include: [
+          {
+            model: db.Order,
+            required: true,
+            attributes: ["id", "status", "OrderDate"],
+            where: { status: "pending" },
+
+            include: [
+              {
+                model: db.User,
+                required: true,
+                attributes: ["userName"],
+              },
+            ],
+          },
+          {
+            model: db.Product,
+            required: true,
+          },
+          {
+            model: db.CustomerInfo,
+            required: true,
+          },
+        ],
+        order: [["orderId", "ASC"]],
+      });
+      res.status(200).json(data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
+    }
+  },
+
+  getProductsInHistory: async (req, res) => {
+    try {
+      let data = await db.OrderDetails.findAll({
+        raw: true,
+        attributes: ["id", "quantityOrdered", "priceEach"],
+        include: [
+          {
+            model: db.Order,
+            required: true,
+            attributes: ["id", "status", "OrderDate"],
+            include: [
+              {
+                model: db.User,
+                required: true,
+                where: { id: req.user.id },
+                attributes: ["id"],
+              },
+            ],
+          },
+          {
+            model: db.Product,
+            required: true,
+          },
+        ],
+      });
+      res.status(200).json(data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
+    }
+  },
+
+  handleOrdered: async (req, res) => {
+    try {
+      let data = await db.Order.update(
+        {
+          status: req.body.orderStatus,
+        },
+        {
+          where: {
+            id: req.body.orderId,
+            userId: req.body.userId,
+          },
         }
-      })
-      res.status(200).json('xoa thanh cong')
-    } catch(err) {
-      console.log(err)
-      res.status(500).json('loi server')
+      );
+      res.status(200).json(data);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json("loi server");
     }
   }
 };

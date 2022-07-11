@@ -12,16 +12,16 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Order.belongsTo(models.User)
-
     }
   };
   Order.init({
     id:{
       type: DataTypes.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
   },
     userId: DataTypes.INTEGER,
-    orderDate: DataTypes.DATE,
+    OrderDate: DataTypes.DATE,
     shippedDate: DataTypes.DATE,
     status: DataTypes.STRING
   }, {

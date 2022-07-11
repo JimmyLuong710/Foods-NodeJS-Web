@@ -41,7 +41,7 @@ app.use(session({
 }))
 
 // USE DATA IN BODY
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 
