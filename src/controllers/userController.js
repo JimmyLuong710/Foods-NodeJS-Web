@@ -180,7 +180,9 @@ const userController = {
 
   getAllProducts: async (req, res) => {
     try {
-      let data = await db.Product.findAll();
+      let data = await db.Product.findAll({
+        order: [['id', 'DESC']]
+      });
       res.status(200).json(data);
     } catch (err) {
       res.status(500).json("loi server");
@@ -457,6 +459,59 @@ const userController = {
       console.log(err);
       res.status(500).json("loi server");
     }
+  },
+
+  getQuantitySoldOfProduct: async (req, res) => {
+    try {
+    let data =  await db.OrderDetails.findAll({
+        raw: true,
+        attributes: [[Sequelize.fn('sum', Sequelize.col('quantityOrdered')), 'total']],
+        where: {productId: req.params.productId},
+        include: [
+          {
+            model: db.Order,
+            required: true,
+            attributes: [],
+            where: {status: 'shipped'}
+          }, 
+        ],
+        group: 'productId'
+      })
+      console.log(data)
+      res.status(200).json(data)
+    } catch(err) {
+      console.log(err)
+      res.status(500).json('loi server')
+    }
+  },
+
+  getProductsBestSell: async (req, res) => {
+    try {
+      let data =  await db.OrderDetails.findAll({
+        raw: true,
+        attributes: [[Sequelize.fn('sum', Sequelize.col('quantityOrdered')), 'total']],
+        include: [
+          {
+            model: db.Order,
+            required: true,
+            attributes: [],
+            where: {status: 'shipped'}
+          }, 
+          {
+            model: db.Product,
+            required: true
+          }
+        ],
+        group: 'productId',
+        order: [[Sequelize.col('total'), 'DESC']],
+        limit: 10
+      })
+        console.log(data)
+        res.status(200).json(data)
+      } catch(err) {
+        console.log(err)
+        res.status(500).json('loi server')
+      }
   }
 };
 

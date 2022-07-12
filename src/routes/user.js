@@ -26,5 +26,7 @@ router.post('/payment', middlewareController.verifyToken, userController.payProd
 router.get('/get-products-in-history', middlewareController.verifyToken, userController.getProductsInHistory)
 router.get('/get-products-in-handle-ordered', middlewareController.verifyAdminToken, userController.getProductsInHandleOrdered)
 router.put('/handle-ordered',middlewareController.verifyAdminToken, userController.handleOrdered)
+router.get('/get-quantity-sold/:productId', userController.getQuantitySoldOfProduct)
+router.get('/get-product-best-sell', userController.getProductsBestSell)
 
 module.exports = router;
