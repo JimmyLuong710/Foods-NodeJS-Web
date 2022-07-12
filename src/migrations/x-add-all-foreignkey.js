@@ -24,7 +24,18 @@ module.exports = {
         onDelete: 'cascade',
         onUpdate: 'cascade'
       });
-      await queryInterface.addConstraint('loginTokens', {
+      await queryInterface.addConstraint("OrderDetails", {
+        fields: ["customerInfoId"],
+        type: "foreign key",
+        name: "CustomerInfos_fkey_constraint_orderdetails", // optional
+        references: {
+          table: "CustomerInfos",
+          field: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      });
+      await queryInterface.addConstraint('LoginTokens', {
         fields: ['userId'],
         type: 'foreign key',
         name: 'logintoken_fkey_constraint_user', // optional
@@ -57,7 +68,28 @@ module.exports = {
         onDelete: 'cascade',
         onUpdate: 'cascade'
       });
-
+      await queryInterface.addConstraint('Carts', {
+        fields: ['userId'], 
+        type: 'foreign key',
+        name: 'cart_fkey_constraint_user', // optional
+        references: {
+          table: 'Users',
+          field: 'id'
+        },
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      });
+      await queryInterface.addConstraint('Carts', {
+        fields: ['productId'], 
+        type: 'foreign key',
+        name: 'cart_fkey_constraint_product', // optional
+        references: {
+          table: 'Products',
+          field: 'id'
+        },
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      });
   },
   down: async (queryInterface, Sequelize) => {
    

@@ -1,10 +1,18 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "foods",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "rjhgcxpwgeieoe",
+    "password": "960289dbb99f3e6636b9b478736450e71bc27cf9609292e393cea0d69fc80a29",
+    "database": "db8v30ogi5hgt0",
+    "host": "ec2-44-205-41-76.compute-1.amazonaws.com",
+    "dialect": "postgres",
+    "logging": false,
+    "timezone": "+07:00",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   },
   "test": {
     "username": "root",

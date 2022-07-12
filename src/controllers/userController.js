@@ -245,7 +245,7 @@ const userController = {
     try {
       let data = await db.Product.findAll({
         where: {
-          productName: { [Op.like]: `%${req.params.key}%` },
+          productName: { [Sequelize.Op.iLike]: `%${req.params.key}%` },
         },
       });
       res.status(200).json(data);
@@ -340,11 +340,12 @@ const userController = {
   },
 
   payProducts: async (req, res) => {
+    let date = new Date()
     try {
       let order = await db.Order.create({
         userId: req.body.userId,
-        OrderDate: moment().tz("Asia/Ho_Chi_Minh").format(),
-        shippedDate: moment().tz("Asia/Ho_Chi_Minh").format(),
+        OrderDate: Math.round(date.getTime()/1000),
+        shippedDate: Math.round(date.getTime()/1000),
         status: "pending",
       });
       let customerInfo = await db.CustomerInfo.create({
@@ -361,8 +362,6 @@ const userController = {
           priceEach: req.body.priceEach[i],
           customerInfoId: customerInfo.dataValues.id,
         });
-        console.log(i);
-        console.log(data);
       }
       res.status(200).json("thanh toan thanh cong");
     } catch (err) {
@@ -433,8 +432,9 @@ const userController = {
             required: true,
           },
         ],
+        order: [['orderId', 'ASC']]
       });
-      res.status(200).json(data);
+      res.status(200).json(data)
     } catch (err) {
       console.log(err);
       res.status(500).json("loi server");
@@ -474,10 +474,14 @@ const userController = {
             attributes: [],
             where: {status: 'shipped'}
           }, 
+          {
+            model: db.Product,
+            required: true,
+            attributes: ['id']
+          }
         ],
-        group: 'productId'
+        group: ['Product.id']
       })
-      console.log(data)
       res.status(200).json(data)
     } catch(err) {
       console.log(err)
@@ -502,11 +506,10 @@ const userController = {
             required: true
           }
         ],
-        group: 'productId',
+        group: ['Product.id'],
         order: [[Sequelize.col('total'), 'DESC']],
         limit: 10
       })
-        console.log(data)
         res.status(200).json(data)
       } catch(err) {
         console.log(err)
