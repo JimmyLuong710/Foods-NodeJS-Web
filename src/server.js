@@ -16,13 +16,13 @@ require('dotenv').config();
 
 let port = process.env.PORT || 8000;
 let app = express();
-const origin = "http://localhost:3000"
+
 
 
 // ALLOW GET DATA FROM API
 app.use(cors({
   credentials: true,
-  origin
+  origin: process.env.REACT_APP_URL
 }))
 
 // CONNECT TO DB
