@@ -22,7 +22,7 @@ let app = express();
 // ALLOW GET DATA FROM API
 app.use(cors({
   origin: [ 
-    'https://app.geekflare.com', 
+    'http://localhost:3000', 
     process.env.REACT_APP_URL
   ], 
   methods: ['GET', 'PUT', 'POST'], 
