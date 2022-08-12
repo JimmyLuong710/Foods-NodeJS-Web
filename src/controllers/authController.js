@@ -87,7 +87,7 @@ const authController = {
             },
             process.env.ACCESS_TOKEN_KEY,
             {
-              expiresIn: '30s',
+              expiresIn: "30s",
             }
           );
           let refreshToken = jwt.sign(
@@ -106,8 +106,9 @@ const authController = {
             token: refreshToken,
           });
           res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: false,
+            secure: true, // set to true if your using https or samesite is none
+            httpOnly: true, // backend only
+            sameSite: "none",
           });
           res.status(200).json({
             ...user,

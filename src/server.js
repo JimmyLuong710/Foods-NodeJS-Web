@@ -21,8 +21,15 @@ let app = express();
 
 // ALLOW GET DATA FROM API
 app.use(cors({
-  credentials: true,
-  origin: process.env.REACT_APP_URL
+  origin: [ 
+    'https://app.geekflare.com', 
+    process.env.REACT_APP_URL
+  ], 
+  methods: ['GET', 'PUT', 'POST'], 
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'], 
+  credentials: true, 
+  maxAge: 600, 
+  exposedHeaders: ['*', 'Authorization' ] 
 }))
 
 // CONNECT TO DB
