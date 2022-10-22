@@ -15,7 +15,7 @@ accountRouter.get("/:accountId", getAccount);
 accountRouter.post("/", addAccount);
 accountRouter.put("/:accountId", updateAccount);
 accountRouter.delete("/:accountId", deleteAccount);
-accountRouter.get("/:userId/products/history", (req, res) => {});
+accountRouter.get("/:userId/orders", (req, res) => {});
 accountRouter.get("/products/pending", (req, res) => {});
 accountRouter.get("/:userId/cart", (req, res) => {});
 

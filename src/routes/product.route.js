@@ -6,22 +6,15 @@ import {
   addProduct,
   updateProduct,
   deleteProduct,
-  getProductsMatchKeyword,
-  getQuantitySoldOfProduct,
-  getProductsBestSell
 } from "../controllers/product.controller";
-require('express-async-errors');
+require("express-async-errors");
 
 const productRouter = express.Router();
 
-productRouter.post("/add-product-img", authMiddleware, (req, res) => {});
+productRouter.get("/:productId", getProduct);
+productRouter.get("/", getProducts);
 productRouter.post("/", authMiddleware, addProduct);
 productRouter.put("/:productId", authMiddleware, updateProduct);
 productRouter.delete("/:productId", authMiddleware, deleteProduct);
-
-productRouter.get("/", getProducts);
-productRouter.get("/:productId", getProduct);
-productRouter.get("/:productId/quantity-sold", (req, res) => {});
-productRouter.get("/best-sold", (req, res) => {});
 
 module.exports = productRouter;

@@ -3,12 +3,12 @@ import paginate from "mongoose-paginate-v2";
 
 const schema = new mongoose.Schema(
   {
-    accountId: {
+    owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Account'
     },
     products: [{
-       productId: {
+       product: {
         type:  mongoose.Schema.Types.ObjectId,
         ref: 'Product'
        },

@@ -1,5 +1,5 @@
 import AuthService from "../services/AuthService";
-import models from "../model";
+import models from "../models";
 import ApiError from "../config/error.config";
 
 const authMiddleware = async (req, res, next) => {
@@ -11,8 +11,8 @@ const authMiddleware = async (req, res, next) => {
       _id: decoded._id,
     });
 
-    if(!account) {
-      throw new ApiError(403, 'Not authorized')
+    if (!account) {
+      throw new ApiError(403, "Not authorized");
     }
 
     req.account = account;

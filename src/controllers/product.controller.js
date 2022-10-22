@@ -1,119 +1,81 @@
 import db from "../models";
 import ApiError from "../config/error.config";
+import models from "../models";
+import DbService from "../services/DbService";
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
 const addProduct = async (req, res) => {
-  let data = await db.Product.create(req.body);
+  if(req.account.role !== 'admin') {
+    throw new ApiError(403, 'Not authorized')
+  }
 
-  return res.status(200).json(data);
+  let product = await DbService.create(models.ProductModel, req.body);
+
+  return res.json(product);
 };
 
 const getProducts = async (req, res) => {
-  let filter = req.query.key
-    ? { productName: { [Op.like]: `%${req.params.key}%` } }
-    : {};
-  let data = await db.Product.findAll({
-    order: [["id", "DESC"]],
-    where: filter,
-  });
+  let filter = {
+    isDeleted: false
+  }
+  if(req.query.key) {
+    filter.productName = new RegExp(req.query.key, 'i')
+  }
 
-  return res.status(200).json(data);
+  let products = await DbService.findAndPaginate(models.ProductModel, filter, {}, req)
+
+  return res.json(products);
 };
 
 const getProduct = async (req, res) => {
-  let data = await db.Product.findOne({
-    where: {
-      id: req.params.productId,
-    },
-  });
+  let filter = {
+    _id: req.params.productId,
+    isDeleted: false
+  }
+  let product = await DbService.findOne(models.ProductModel, filter, {}, {notAllowNull: true})
 
-  return res.status(200).json(data);
+  return res.json(product);
 };
 
 const updateProduct = async (req, res) => {
-  if (req.user.role != "admin") {
+  if (req.account.role != "admin") {
     throw new ApiError(403, "Not authorized");
   }
+  let filter = {
+    _id: req.params.productId,
+    isDeleted: false
+  }
 
-  let data = await db.Product.update(req.body, {
-    where: {
-      id: req.params.productId,
-    },
-  });
+  let product = await DbService.updateOne(models.ProductModel, filter, req.body, {new: true}, {notAllowNull: true})
 
-  return res.status(200).json(data);
+  return res.json(product);
 };
 
 const deleteProduct = async (req, res) => {
-  if (req.user.role != "admin") {
+  if (req.account.role != "admin") {
     throw new ApiError(403, "Not authorized");
   }
 
-  let data = await db.Product.destroy({
-    where: {
-      id: req.params.id,
-    },
-  });
+  let filter = {
+    _id: req.params.productId,
+    isDeleted: false
+  }
 
-  return res.status(200).json(data);
+  let product = await DbService.findOne(models.ProductModel, filter, {}, {notAllowNull: true})
+
+  product.isDeleted = true
+  await product.save()
+
+  return res.json(product);
 };
 
-const getQuantitySoldOfProduct = async (req, res) => {
-  let data = await db.OrderDetails.findAll({
-    raw: true,
-    attributes: [
-      [Sequelize.fn("sum", Sequelize.col("quantityOrdered")), "total"],
-    ],
-    where: { productId: req.params.productId },
-    include: [
-      {
-        model: db.Order,
-        required: true,
-        attributes: [],
-        where: { status: "shipped" },
-      },
-    ],
-    group: "productId",
-  });
-  console.log(data);
 
-  res.status(200).json(data);
-};
-
-const getProductsBestSell = async (req, res) => {
-  let data = await db.OrderDetails.findAll({
-    raw: true,
-    attributes: [
-      [Sequelize.fn("sum", Sequelize.col("quantityOrdered")), "total"],
-    ],
-    include: [
-      {
-        model: db.Order,
-        required: true,
-        attributes: [],
-        where: { status: "shipped" },
-      },
-      {
-        model: db.Product,
-        required: true,
-      },
-    ],
-    group: "productId",
-    order: [[Sequelize.col("total"), "DESC"]],
-    limit: 10,
-  });
-
-  console.log(data);
-  res.status(200).json(data);
-};
 
 module.exports = {
   addProduct,
   getProducts,
   getProduct,
   updateProduct,
-  deleteProduct,
-  getQuantitySoldOfProduct,
-  getProductsBestSell,
+  deleteProduct
 };

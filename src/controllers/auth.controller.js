@@ -1,5 +1,5 @@
 import ApiError from "../config/error.config";
-import models from "../model";
+import models from "../models";
 import AuthService from "../services/AuthService";
 
 const signUp = async (req, res) => {
@@ -23,7 +23,7 @@ const signUp = async (req, res) => {
     password: hash,
   });
 
-  account = account.toObject()
+  account = account.toObject();
   delete account.password;
 
   return res.status(200).json(account);
@@ -57,7 +57,7 @@ const signIn = async (req, res) => {
   account.refreshToken = refreshToken;
   await account.save();
   account = account.toObject();
-  delete account.password
+  delete account.password;
 
   return res.status(200).json({
     ...account,
@@ -79,7 +79,7 @@ const logOut = async (req, res) => {
     }
   );
 
-  account = account.toObject()
+  account = account.toObject();
   delete account.password;
 
   return res.status(200).json(account);
@@ -99,7 +99,10 @@ const refreshToken = async (req, res) => {
   }
 
   let decoded = await AuthService.verifyToken(refreshToken, "refreshToken");
-  let newAccessToken = await AuthService.createToken({_id: decoded._id}, "accessToken");
+  let newAccessToken = await AuthService.createToken(
+    { _id: decoded._id },
+    "accessToken"
+  );
 
   return res.status(200).json({
     accessToken: newAccessToken,

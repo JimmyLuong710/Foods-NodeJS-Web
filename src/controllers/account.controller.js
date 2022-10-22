@@ -1,5 +1,5 @@
 import ApiError from "../config/error.config";
-import models from "../model";
+import models from "../models";
 import AuthService from "../services/AuthService";
 import DbService from "../services/DbService";
 
@@ -8,7 +8,12 @@ const getAccounts = async (req, res) => {
     throw new ApiError(403, "Not authorized");
   }
 
-  const accounts = await DbService.findAndPaginate(models.AccountModel, {}, {select: '-password -refreshToken'}, req)
+  const accounts = await DbService.findAndPaginate(
+    models.AccountModel,
+    {},
+    { select: "-password -refreshToken" },
+    req
+  );
 
   return res.status(200).json(accounts);
 };
@@ -17,17 +22,28 @@ const getAccount = async (req, res) => {
   if (req.account.role !== "admin") {
     throw new ApiError(403, "Not authorized");
   }
-  
-  let account = await DbService.findOne(models.AccountModel, {_id: req.params.accountId}, {}, {excludeFields: '-password -refreshToken', notAllowNull: true})
 
-  return res.json(account)
-}
+  let account = await DbService.findOne(
+    models.AccountModel,
+    { _id: req.params.accountId },
+    {},
+    { excludeFields: "-password -refreshToken", notAllowNull: true }
+  );
+
+  return res.json(account);
+};
 
 const updateAccount = async (req, res) => {
   if (req.account.role == "admin" || req.account._id == req.params.accountId) {
-    let account = await DbService.updateOne(models.AccountModel, {
-      _id: req.params.accountId,
-    }, {userName: req.body.userName}, {new: true, select: '-password -refreshToken'}, {notAllowNull: true});
+    let account = await DbService.updateOne(
+      models.AccountModel,
+      {
+        _id: req.params.accountId,
+      },
+      { userName: req.body.userName },
+      { new: true, select: "-password -refreshToken" },
+      { notAllowNull: true }
+    );
 
     return res.status(200).json(account);
   } else {
@@ -37,7 +53,12 @@ const updateAccount = async (req, res) => {
 
 const deleteAccount = async (req, res) => {
   if (req.account.role == "admin" || req.account._id == req.params.accountId) {
-    let account = await DbService.findOne(models.AccountModel, {_id: req.params.accountId,}, {}, {excludeFields: '-password', notAllowNull: true});
+    let account = await DbService.findOne(
+      models.AccountModel,
+      { _id: req.params.accountId },
+      {},
+      { excludeFields: "-password", notAllowNull: true }
+    );
 
     if (account.role == "admin") {
       throw new ApiError(400, "Can not delete admin account");
@@ -74,8 +95,8 @@ const addAccount = async (req, res) => {
     role: "user",
   });
 
-  data = data.toObject()
-  delete data.password
+  data = data.toObject();
+  delete data.password;
 
   return res.status(200).json(data);
 };

@@ -1,30 +1,21 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class Payment extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-      Payment.belongsTo(models.User)
-    }
-  };
-  Payment.init({
-    id:{
-      type: DataTypes.INTEGER,
-      primaryKey: true
+import mongoose from "mongoose";
+import paginate from "mongoose-paginate-v2";
+
+const schema = new mongoose.Schema(
+  {
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
+    },
+    paidDate: Date,
+    amount: Number
   },
-    userId: DataTypes.INTEGER,
-    paymentDate: DataTypes.DATE,
-    amount: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Payment',
-  });
-  return Payment;
-};
+  {
+    timestamps: true,
+  }
+);
+
+schema.plugin(paginate);
+const PaymentModel = mongoose.model("Payment", schema);
+
+module.exports = PaymentModel;

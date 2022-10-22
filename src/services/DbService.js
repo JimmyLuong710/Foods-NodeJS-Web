@@ -12,6 +12,12 @@ class DbService {
     }
   }
 
+  static async create(model, body) {
+    let data = await model.create(body)
+    
+    return data
+  }
+
   static async findOne(model, filter, dbOptions = {}, extraOptions = {}) {
     let data = await model.findOne(filter, dbOptions).select(extraOptions.excludeFields)
     
