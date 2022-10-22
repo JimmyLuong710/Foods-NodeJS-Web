@@ -1,23 +1,26 @@
 import AuthService from "../services/AuthService";
-import db from "../models";
+import models from "../model";
+import ApiError from "../config/error.config";
 
 const authMiddleware = async (req, res, next) => {
   try {
-    let token = req.headers.token.split(" ")[1];
-    let decoded = await AuthService.verifyToken(token, "accessToken");
+    let accessToken = req.headers.authorization.split(" ")[1];
+    let decoded = await AuthService.verifyToken(accessToken, "accessToken");
 
-    let user = await db.User.findOne({
-      raw: true,
-      where: {
-        id: decoded.id,
-      },
+    let account = await models.AccountModel.findOne({
+      _id: decoded._id,
     });
 
-    req.user = user;
+    if(!account) {
+      throw new ApiError(403, 'Not authorized')
+    }
+
+    req.account = account;
     next();
   } catch (error) {
+    console.log(error);
     return res.status(403).json("Not authenticated");
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;

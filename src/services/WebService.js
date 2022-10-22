@@ -5,8 +5,6 @@ import mainRouter from '../routes'
 import errorHandler from '../middlewares/error.middleware'
 import cors from "cors";
 import cookieParser from "cookie-parser";
-require("dotenv").config();
-
 
 let port = process.env.PORT || 8000;
 let app = express();
@@ -17,7 +15,7 @@ class WebService {
     app.use(
       cors({
         credentials: true,
-        origin: process.env.REACT_URI,
+        origin: process.env.REACT_URL,
       })
     );
     app.use(cookieParser());

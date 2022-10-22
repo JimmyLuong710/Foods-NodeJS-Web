@@ -10,6 +10,7 @@ import {
   getQuantitySoldOfProduct,
   getProductsBestSell
 } from "../controllers/product.controller";
+require('express-async-errors');
 
 const productRouter = express.Router();
 

@@ -1,40 +1,47 @@
-import jwt from 'jsonwebtoken'
-import jwtConfig from '../config/jwt.config'
-import bcrypt from 'bcryptjs'
-
+import jwt from "jsonwebtoken";
+import jwtConfig from "../config/jwt.config";
+import bcrypt from "bcryptjs";
 
 class AuthService {
-    static async verifyToken (token, type = 'accessToken') {
-        let privateKey = type == 'accessToken' ? jwtConfig.accessTokenPrivateKey : jwtConfig.refreshTokenPrivateKey
-        let decoded = jwt.verify(token, privateKey)
+  static async verifyToken(token, type = "accessToken") {
+    let privateKey =
+      type == "accessToken"
+        ? jwtConfig.accessTokenPrivateKey
+        : jwtConfig.refreshTokenPrivateKey;
+    let decoded = jwt.verify(token, privateKey);
 
-        return decoded
-    }
+    return decoded;
+  }
 
-    static async createToken (payload, type = 'accessToken') {
-        let privateKey = type == 'accessToken' ? jwtConfig.accessTokenPrivateKey : jwtConfig.refreshTokenPrivateKey
-        let expiresIn = type == 'accessToken' ? jwtConfig.accessTokenExpiration : jwtConfig.refreshTokenExpiration
+  static async createToken(payload, type = "accessToken") {
+    let privateKey =
+      type == "accessToken"
+        ? jwtConfig.accessTokenPrivateKey
+        : jwtConfig.refreshTokenPrivateKey;
+    let expiresIn =
+      type == "accessToken"
+        ? jwtConfig.accessTokenExpiration
+        : jwtConfig.refreshTokenExpiration;
 
-        let token = jwt.sign(payload, privateKey, {
-            algorithm: jwtConfig.algorithm,
-            expiresIn
-        });
+    let token = jwt.sign(payload, privateKey, {
+      expiresIn: expiresIn,
+    });
 
-        return token
-    }
+    return token;
+  }
 
-    static async hashPassword (password) {
-        let salt = bcrypt.genSaltSync(10);
-        let hash = bcrypt.hashSync(password, salt);
+  static async hashPassword(password) {
+    let salt = bcrypt.genSaltSync(10);
+    let hash = bcrypt.hashSync(password, salt);
 
-        return hash
-    }
+    return hash;
+  }
 
-    static async comparePassword (password, hash) {
-       let result = bcrypt.compareSync(password, hash);
+  static async comparePassword(password, hash) {
+    let result = bcrypt.compareSync(password, hash);
 
-       return result
-    }
+    return result;
+  }
 }
 
-module.exports = AuthService
+module.exports = AuthService;
