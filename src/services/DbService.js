@@ -19,7 +19,7 @@ class DbService {
   }
 
   static async findOne(model, filter, dbOptions = {}, extraOptions = {}) {
-    let data = await model.findOne(filter, dbOptions).select(extraOptions.excludeFields)
+    let data = await model.findOne(filter, dbOptions).select(extraOptions.excludeFields).populate(extraOptions?.populate)
     
     if(extraOptions.notAllowNull && !data) {
       throw new ApiError(400, 'The resources does not exist')
@@ -40,7 +40,7 @@ class DbService {
 
   static async updateOne(model, filter, body,  dbOptions = {}, extraOptions = {}) {
     let data = await model.findOneAndUpdate(filter, body, dbOptions)
-
+    
     if(extraOptions.notAllowNull && !data) {
       throw new ApiError(400, 'The resources does not exist')
     }

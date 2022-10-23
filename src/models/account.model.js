@@ -26,11 +26,7 @@ const schema = new mongoose.Schema(
       default: "user",
     },
     forgotToken: String,
-    refreshToken: String,
-    deliveryInfos: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'DeliveryInfo'
-    }
+    refreshToken: String
   },
   {
     timestamps: true,

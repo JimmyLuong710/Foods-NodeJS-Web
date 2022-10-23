@@ -1,49 +1,47 @@
 import ApiError from "../config/error.config";
-import db from "../models";
+import DbService from "../services/DbService"
+import models from "../models"
 
 const addToCart = async (req, res) => {
-  let product = await db.Cart.findOne({
-    where: {
-      productId: req.body.productId,
-      userId: req.body.userId,
-    },
-  });
-  if (product) {
-    throw new ApiError(400, "product already exists in cart");
+  let docBody = {
+    $push: {
+      products:  req.body
+    }
   }
+  let product = await DbService.updateOne(models.CartModel, {owner: req.account._id}, docBody, {new: true, upsert: true})
 
-  if (req.params.userId != req.user.id) {
-    throw new ApiError(400, `You don't have permission to do this action`);
-  }
+  return res.json(product)
+}
 
-  let data = await db.Cart.create({
-    userId: req.params.userId,
-    productId: req.body.productId,
-    quantityAdded: req.body.quantityAdded,
-  });
+const getCart = async (req, res) => {
+  let cart = await DbService.findOne(models.CartModel, {owner: req.account._id}, {}, {notAllowNull: true, populate: 'products.product'})
 
-  return res.status(200).json(data);
+  return res.json(cart)
 };
 
-const getProductInCart = async (req, res) => {
-  if (req.params.userId != req.user.id) {
-    throw new ApiError(400, `You don't have permission to do this action`);
+const deleteInCart = async (req, res) => {
+  let docBody = {
+    $pull: {
+      products: {
+        product: req.params.productId
+      }
+    }
   }
 
-  let data = await db.Cart.findAll({
-    where: { userId: req.params.userId },
-    include: [
-      {
-        model: db.Product,
-        required: true,
-      },
-    ],
-  });
+  let cart = await DbService.updateOne(models.CartModel, {owner: req.account._id}, docBody, {new:true}, {notAllowNull: true})
 
-  return res.status(200).json(data);
-};
+  return res.json(cart)
+}
+
+const deleteCart = async (req, res) => {
+  let cart = await DbService.deleteOne(models.CartModel, {owner: req.account._id}, {}, {notAllowNull: true})
+
+  return res.json(cart)
+}
 
 module.exports = {
   addToCart,
-  getProductInCart,
-};
+  getCart,
+  deleteInCart,
+  deleteCart
+}

@@ -9,9 +9,37 @@ const getOrders = async (req, res) => {
     let dbOptions = {
         populate: 'products.product'
     }
+    
     let orders = await DbService.findAndPaginate(models.OrderModel, filter, dbOptions, req)
 
     return res.json(orders)
+}
+
+const getOrdersPending = async (req, res) => {
+    if(req.account.role != 'admin') {
+        throw new ApiError(403, 'Not authorize')
+    }
+
+    let filter = {
+        status: 'PENDING'
+    }
+    let dbOptions = {
+        populate: 'products.product'
+    }
+    
+    let orders = await DbService.findAndPaginate(models.OrderModel, filter, dbOptions, req)
+
+    return res.json(orders)
+}
+
+const handleOrder = async (req, res) => {
+    if(req.account.role != 'admin') {
+        throw new ApiError(403, 'Not authorized')
+    }
+
+    let order = await DbService.updateOne(models.OrderModel, {_id: req.params.orderId}, {status: req.body.status}, {new: true, runValidators: true}, {notAllowNull: true})
+
+    return res.json(order)
 }
 
 const addOrder = async (req, res) => {
@@ -39,6 +67,8 @@ const deleteOrder = async (req, res) => {
 
 module.exports = {
     getOrders,
+    getOrdersPending,
     addOrder,
-    deleteOrder
+    deleteOrder,
+    handleOrder
 }

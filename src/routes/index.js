@@ -5,6 +5,7 @@ import productRouter from './product.route'
 import paymentRouter from './payment.route'
 import authRouter from './auth.route'
 import orderRouter from './order.route'
+import deliveryInfoRouter from './deliveryInfo.route'
 import authMiddleware from '../middlewares/auth.middleware'
 require('express-async-errors');
 
@@ -16,5 +17,6 @@ mainRouter.use('/products', productRouter)
 mainRouter.use('/orders', authMiddleware, orderRouter)
 mainRouter.use('/cart', authMiddleware, cartRouter)
 mainRouter.use('/payments', authMiddleware, paymentRouter)
+mainRouter.use('/deliveryInfos', authMiddleware, deliveryInfoRouter)
 
 module.exports = mainRouter;
