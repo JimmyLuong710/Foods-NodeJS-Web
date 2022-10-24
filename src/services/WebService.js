@@ -4,7 +4,6 @@ import viewConfig from "../config/view.config";
 import mainRouter from '../routes'
 import errorHandler from '../middlewares/error.middleware'
 import cors from "cors";
-import cookieParser from "cookie-parser";
 
 let port = process.env.PORT || 8000;
 let app = express();
@@ -18,7 +17,6 @@ class WebService {
         origin: process.env.REACT_URL,
       })
     );
-    app.use(cookieParser());
     app.set("trust proxy", 1); 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));

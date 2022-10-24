@@ -38,7 +38,14 @@ const handleOrder = async (req, res) => {
     }
 
     let order = await DbService.updateOne(models.OrderModel, {_id: req.params.orderId}, {status: req.body.status}, {new: true, runValidators: true}, {notAllowNull: true})
-
+    
+    // increase quantity of product sold 
+    if(req.body?.status === 'CONFIRMED') {
+        for(let product of order.products) {
+            await DbService.updateOne(models.ProductModel, {_id: product.product}, {$inc: {quantitySold: product.quantityOrdered}})
+        }
+    }
+    
     return res.json(order)
 }
 

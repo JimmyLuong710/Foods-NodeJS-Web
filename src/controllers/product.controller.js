@@ -1,13 +1,10 @@
-import db from "../models";
 import ApiError from "../config/error.config";
 import models from "../models";
 import DbService from "../services/DbService";
-const Sequelize = require("sequelize");
-const Op = Sequelize.Op;
 
 const addProduct = async (req, res) => {
-  if(req.account.role !== 'admin') {
-    throw new ApiError(403, 'Not authorized')
+  if (req.account.role !== "admin") {
+    throw new ApiError(403, "Not authorized");
   }
 
   let product = await DbService.create(models.ProductModel, req.body);
@@ -17,13 +14,18 @@ const addProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   let filter = {
-    isDeleted: false
-  }
-  if(req.query.key) {
-    filter.productName = new RegExp(req.query.key, 'i')
+    isDeleted: false,
+  };
+  if (req.query.key) {
+    filter.productName = new RegExp(req.query.key, "i");
   }
 
-  let products = await DbService.findAndPaginate(models.ProductModel, filter, {}, req)
+  let products = await DbService.findAndPaginate(
+    models.ProductModel,
+    filter,
+    {},
+    req
+  );
 
   return res.json(products);
 };
@@ -31,9 +33,14 @@ const getProducts = async (req, res) => {
 const getProduct = async (req, res) => {
   let filter = {
     _id: req.params.productId,
-    isDeleted: false
-  }
-  let product = await DbService.findOne(models.ProductModel, filter, {}, {notAllowNull: true})
+    isDeleted: false,
+  };
+  let product = await DbService.findOne(
+    models.ProductModel,
+    filter,
+    {},
+    { notAllowNull: true }
+  );
 
   return res.json(product);
 };
@@ -44,10 +51,16 @@ const updateProduct = async (req, res) => {
   }
   let filter = {
     _id: req.params.productId,
-    isDeleted: false
-  }
+    isDeleted: false,
+  };
 
-  let product = await DbService.updateOne(models.ProductModel, filter, req.body, {new: true}, {notAllowNull: true})
+  let product = await DbService.updateOne(
+    models.ProductModel,
+    filter,
+    req.body,
+    { new: true },
+    { notAllowNull: true }
+  );
 
   return res.json(product);
 };
@@ -59,23 +72,26 @@ const deleteProduct = async (req, res) => {
 
   let filter = {
     _id: req.params.productId,
-    isDeleted: false
-  }
+    isDeleted: false,
+  };
 
-  let product = await DbService.findOne(models.ProductModel, filter, {}, {notAllowNull: true})
+  let product = await DbService.findOne(
+    models.ProductModel,
+    filter,
+    {},
+    { notAllowNull: true }
+  );
 
-  product.isDeleted = true
-  await product.save()
+  product.isDeleted = true;
+  await product.save();
 
   return res.json(product);
 };
-
-
 
 module.exports = {
   addProduct,
   getProducts,
   getProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
 };

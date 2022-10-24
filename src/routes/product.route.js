@@ -1,4 +1,5 @@
 import authMiddleware from "../middlewares/auth.middleware";
+import uploadMiddleware from "../middlewares/upload.middleware";
 import express from "express";
 import {
   getProducts,
@@ -13,7 +14,7 @@ const productRouter = express.Router();
 
 productRouter.get("/:productId", getProduct);
 productRouter.get("/", getProducts);
-productRouter.post("/", authMiddleware, addProduct);
+productRouter.post("/", authMiddleware, uploadMiddleware, addProduct);
 productRouter.put("/:productId", authMiddleware, updateProduct);
 productRouter.delete("/:productId", authMiddleware, deleteProduct);
 
