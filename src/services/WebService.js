@@ -14,7 +14,7 @@ class WebService {
     app.use(
       cors({
         credentials: true,
-        origin: process.env.REACT_URL,
+        // origin: process.env.REACT_URL,
       })
     );
     app.set("trust proxy", 1); 
