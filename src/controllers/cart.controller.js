@@ -19,6 +19,22 @@ const getCart = async (req, res) => {
   return res.json(cart)
 };
 
+const updateInCart = async (req, res) => {
+  let filter = {
+    owner: req.account._id,
+    "products.product":  req.params.productId
+  };
+  let docBody = {
+    $set: {
+      "products.$.quantityAdded": req.body.quantityAdded,
+    },
+  };
+
+  let cart = await DbService.updateOne(models.CartModel, filter, docBody, {new: true}, {notAllowNull: true});
+
+  return res.json(cart);
+};
+
 const deleteInCart = async (req, res) => {
   let docBody = {
     $pull: {
@@ -42,6 +58,7 @@ const deleteCart = async (req, res) => {
 module.exports = {
   addToCart,
   getCart,
+  updateInCart,
   deleteInCart,
   deleteCart
 }
