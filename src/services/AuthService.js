@@ -38,7 +38,7 @@ class AuthService {
   }
 
   static async comparePassword(password, hash) {
-    let result = bcrypt.compareSync(password, hash);
+    let result = await bcrypt.compare(password, hash);
 
     return result;
   }

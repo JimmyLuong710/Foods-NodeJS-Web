@@ -1,6 +1,7 @@
 import ApiError from "../config/error.config";
 import models from "../models";
 import AuthService from "../services/AuthService";
+import DbService from "../services/DbService"
 
 const signUp = async (req, res) => {
   let username = await models.AccountModel.findOne({
@@ -37,7 +38,7 @@ const signIn = async (req, res) => {
     throw new ApiError(400, "wrong username or password");
   }
 
-  let validatedPassword = AuthService.comparePassword(
+  let validatedPassword = await AuthService.comparePassword(
     req.body.password,
     account.password
   );
@@ -109,9 +110,27 @@ const refreshToken = async (req, res) => {
   });
 };
 
+const changePassword = async (req, res) => {
+  let account = await DbService.findOne(models.AccountModel,{ _id: req.account._id }, {}, {notAllowNull: true});
+  let validatedPassword = await AuthService.comparePassword(
+    req.body.password,
+    account.password
+  );
+  if (!validatedPassword) {
+    throw new ApiError(400, "wrong password");
+  }
+
+  let hash = await AuthService.hashPassword(req.body.newPassword);
+  account.password = hash;
+  account.save();
+
+  return res.json("Update successful");
+};
+
 module.exports = {
   signUp,
   signIn,
   logOut,
   refreshToken,
+  changePassword
 };
