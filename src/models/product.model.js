@@ -11,6 +11,9 @@ const schema = new mongoose.Schema(
     type: {
       type: String,
     },
+    status: {
+      type: String
+    },
     isDeleted: {
       type: Boolean,
       default: false,

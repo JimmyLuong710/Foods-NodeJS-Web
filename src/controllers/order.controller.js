@@ -4,10 +4,10 @@ import models from "../models"
 
 const getOrders = async (req, res) => {
     let filter = {
-        accountId: req.params.accountId
+        owner: req.account._id
     }
     let dbOptions = {
-        populate: 'products.product'
+        populate: ['products.product', 'deliveryInfo']
     }
     
     let orders = await DbService.findAndPaginate(models.OrderModel, filter, dbOptions, req)
@@ -24,7 +24,7 @@ const getOrdersPending = async (req, res) => {
         status: 'PENDING'
     }
     let dbOptions = {
-        populate: 'products.product'
+        populate: ['products.product', 'deliveryInfo']
     }
     
     let orders = await DbService.findAndPaginate(models.OrderModel, filter, dbOptions, req)
@@ -54,18 +54,14 @@ const addOrder = async (req, res) => {
         ...req.body,
         owner: req.account._id
     }
-    let order = await DbService.create(models.OrderModel, req.body, docBody)
+    let order = await DbService.create(models.OrderModel, docBody)
 
     return res.json(order)
 }
 
 const deleteOrder = async (req, res) => {
-    if(req.account._id != req.params.accountId) {
-        throw new ApiError(403, "Not authorized")
-    }
-
     let filter = {
-        accountId: req.params.accountId
+        owner: req.account._id
     }
     let order = await DbService.deleteOne(models.OrderModel, filter, {}, {notAllowNull: true})
 

@@ -8,9 +8,12 @@ const getAccounts = async (req, res) => {
     throw new ApiError(403, "Not authorized");
   }
 
+  let filter = {};
+  if (req.query.key) filter.userName = new RegExp(req.query.key, "i");
+
   const accounts = await DbService.findAndPaginate(
     models.AccountModel,
-    {},
+    filter,
     { select: "-password -refreshToken" },
     req
   );

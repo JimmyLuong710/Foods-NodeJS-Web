@@ -10,16 +10,19 @@ const schema = new mongoose.Schema(
     userName: {
       type: String,
       trim: true,
-      unique: true
+      unique: true,
+      required: true
     },
     email: {
       type: String,
       trim: true,
-      unique: true
+      unique: true,
+      required: true
     },
     password: {
       type: String,
-      private: true
+      private: true,
+      required: true
     },
     role: {
       type: String,

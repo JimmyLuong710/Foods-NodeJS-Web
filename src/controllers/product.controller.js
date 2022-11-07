@@ -19,6 +19,9 @@ const getProducts = async (req, res) => {
   if (req.query.key) {
     filter.productName = new RegExp(req.query.key, "i");
   }
+  if(req.query.type) {
+    filter.type = req.query.type;
+  }
 
   let products = await DbService.findAndPaginate(
     models.ProductModel,

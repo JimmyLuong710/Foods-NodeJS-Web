@@ -8,6 +8,16 @@ const addToCart = async (req, res) => {
       products:  req.body
     }
   }
+  let filter = {
+    owner: req.account._id,
+    "products.product":  req.body.product
+  };
+
+  let cart = await DbService.findOne(models.CartModel, filter)
+  if(cart) {
+    throw new ApiError(400, "Sản phẩm này đã thêm vào giỏ trước đó")
+  }
+
   let product = await DbService.updateOne(models.CartModel, {owner: req.account._id}, docBody, {new: true, upsert: true})
 
   return res.json(product)
